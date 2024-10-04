@@ -1,0 +1,9 @@
+[package]
+name = "nofetch-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rand = "0.8.5"
+toml = "0.5"
+home = "0.5"

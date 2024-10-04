@@ -1,6 +1,5 @@
 nofetch rewritten in C.
 
-```
 to compile the C program, run
 ```
 clang -nostdlib -lc -masm=intel main.c -o nofetch

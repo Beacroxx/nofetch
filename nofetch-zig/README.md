@@ -1,0 +1,1 @@
+nofetch but in zig.

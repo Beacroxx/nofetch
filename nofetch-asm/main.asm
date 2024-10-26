@@ -72,7 +72,7 @@ next:
   mov ebx, eax              ; ebx = fileHandle
   mov al, 3                 ; al = 3
   mov ecx, edi              ; ecx = buf
-  mov edx, 40               ; edx(size) = 40
+  mov edx, 35               ; edx(size) = 35
   int 0x80                  ; interrupt sys_read
 
 find:

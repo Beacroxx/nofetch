@@ -1,5 +1,5 @@
 nofetch rewritten in assembly to be as small as possible. (410 bytes)
-it runs in approximately 90µs on my machine.
+it runs in approximately 50µs on my machine.
 
 to compile the assembly, run
 ```

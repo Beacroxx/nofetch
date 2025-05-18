@@ -1,4 +1,3 @@
-
 BITS 32
 org 0x08048000
 ehdr:
@@ -16,7 +15,7 @@ end:
   dd _start               ; e_entry
   dd phdr - $$            ; e_phoff
   dd 0                    ; e_shoff kind of unused
-  dd 0                    ; e_flags !unused!
+  dd 0                    ; e_shnum kind of unused
   dw ehdrsize             ; e_ehsize
   dw phdrsize             ; e_phentsize
   dw 1                    ; e_phnum
@@ -34,57 +33,56 @@ phdr:
   dd 0x1000               ; p_align (page size)
   phdrsize equ $ - phdr
 
-string: db "probably a computer", 0, "there's probably some ram in there", 0, "init should ideally be running", 0, "yeah", 0, "you should probably go outside", 0, "i would be lead to believe that / is mounted", 0, "hey, what's this knob do?", 0, "i use arch btw", 0
+string: db "Looks computery", 0, "I ate the ram", 0, "Stole your kernel", 0, "yeah", 0, "You should touch grass", 0, "Where did / go?", 0, "Hey, what's this knob do?", 0, "I use arch btw", 0
 _start:
-  rdtsc                     ; timestamp -> edx:eax
-  xor edx, edx              ; edx = 0
-  mov edi, buf              ; edi = buf
-  movzx edx, al             ; edx = edx
-  and edx, 7                ; edx &= 7
+  rdtsc                   ; timestamp -> edx:eax
+  mov edi, buf            ; edi = buf
+  push edi                ; push buf address to stack
+  mov dl, al              ; dl = al
+  and dl, 7               ; dl &= 7
+  
+  mov eax, 0x203e0a       ; eax = "\n> "
+  push eax                ; push the prompt to stack
+  stosd                   ; *edi++ = eax
+  mov esi, string         ; esi = string
 
-  mov [edi], DWORD 0x203e0a ; buf = "\n> "
-  mov esi, string           ; esi = string
-  add edi, 3                ; buf += 3
+loop:
+  lodsb                   ; al = *esi++
+  test dl, dl             ; if dl == 0
+  jnz no_store            ; goto no_store
+  stosb                   ; *edi++ = al
+no_store:
+  test al, al             ; if al != 0
+  jne check               ; goto check
+  dec edx                 ; edx--
+check:
+  cmp al, 1               ; if al != 1
+  jne loop                ; goto loop
 
-scan:
-  lodsb                     ; al = [esi++]
-  cmp edx, 0                ; if divRemainder != 0
-  jne copy                  ; goto copy
-  stosb                     ; [edi++] = al
+  pop eax                 ; pop the prompt from stack
+  stosd                   ; *edi++ = eax
 
-copy:
-  test al, al               ; if al != 0
-  jne next                  ; goto next
-  dec edx                   ; divRemainder--
+  mov eax, 5              ; eax = 5
+  mov ebx, file           ; ebx(fileName) = file
+  xor ecx, ecx            ; ecx(accessMode) = 0
+  int 0x80                ; interrupt sys_open
 
-next:
-  cmp al, 1                 ; if al != 1
-  jne scan                  ; goto scan
-
-  mov [edi], DWORD 0x203e0a ; buf = "\n> "
-  add edi, 3                ; buf += 3
-
-  mov eax, 5                ; al = 5
-  mov ebx, file             ; ebx(fileName) = file
-  xor ecx, ecx              ; ecx(accessMode) = 0
-  int 0x80                  ; interrupt sys_open
-
-  mov ebx, eax              ; ebx = fileHandle
-  mov al, 3                 ; al = 3
-  mov ecx, edi              ; ecx = buf
-  mov edx, 35               ; edx(size) = 35
-  int 0x80                  ; interrupt sys_read
+  mov ebx, eax            ; ebx = fileHandle
+  mov al, 3               ; al = 3
+  mov ecx, edi            ; ecx = buf
+  mov edx, 32             ; edx(size) = 32
+  int 0x80                ; interrupt sys_read
 
 find:
-  inc edi                   ; buf++
-  cmp byte [edi], '('       ; if *buf != '('
-  jne find                  ; goto find
+  inc edi                 ; edi++
+  cmp byte [edi], '('     ; if *buf != '('
+  jne find                ; goto find
 
   mov [edi], DWORD 0x5F363878
   mov [edi + 4], DWORD 0x0A0A3436
 
-  mov ecx, buf              ; ecx(buffer) = buf
-  jmp end                   ; goto end
+  pop ecx                 ; pop buf address from stack
+  jmp end                 ; goto end
 
 section .bss
 buf: resb 32

@@ -1,8 +1,10 @@
-nofetch rewritten in assembly to be as small as possible. (319 bytes)
+nofetch rewritten in assembly to be as small as possible. (305 bytes)
 it runs in approximately 50µs on my machine.
+needs the symlink
 
 to compile the assembly, run
 ```
+sudo ln -sf /proc/version /version
 nasm main.asm -o nofetch
 chmod +x ./nofetch
 ```

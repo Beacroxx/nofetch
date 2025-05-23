@@ -5,7 +5,7 @@ ehdr:
 end:
   mov al, 4               ; al = 4
   xor bl, bl              ; bl(fileDescriptor) = stderr
-  mov dl, 128             ; dl(bufferSize) = 128
+  mov dl, 96              ; dl(bufferSize) = 96
   int 0x80                ; interrupt sys_write
   mov al, 1               ; al = 1
   int 0x80                ; interrupt sys_exit
@@ -14,16 +14,14 @@ end:
   dd 1                    ; e_version
   dd _start               ; e_entry
   dd phdr - $$            ; e_phoff
-  dd 0                    ; e_shoff kind of unused
-  dd 0                    ; e_shnum kind of unused
+file: db "/versio", 0       ; file
   dw ehdrsize             ; e_ehsize
   dw phdrsize             ; e_phentsize
   dw 1                    ; e_phnum
-  file: db "/proc/version", 0
   ehdrsize equ $ - ehdr
-
 phdr:
-  dd 1                    ; p_type (PT_LOAD)
+
+  dd 1
   dd 0                    ; p_offset
   dd $$                   ; p_vaddr
   dd 0                    ; p_paddr !unused!
@@ -33,14 +31,13 @@ phdr:
   dd 0x1000               ; p_align (page size)
   phdrsize equ $ - phdr
 
-string: db "Looks computery", 0, "I ate the ram", 0, "Stole your kernel", 0, "yeah", 0, "You should touch grass", 0, "Where did / go?", 0, "Hey, what's this knob do?", 0, "I use arch btw", 0
 _start:
   rdtsc                   ; timestamp -> edx:eax
   mov edi, buf            ; edi = buf
   push edi                ; push buf address to stack
   mov dl, al              ; dl = al
   and dl, 7               ; dl &= 7
-  
+
   mov eax, 0x203e0a       ; eax = "\n> "
   push eax                ; push the prompt to stack
   stosd                   ; *edi++ = eax
@@ -48,8 +45,8 @@ _start:
 
 loop:
   lodsb                   ; al = *esi++
-  test dl, dl             ; if dl == 0
-  jnz no_store            ; goto no_store
+  test dl, dl             ; if dl != 0
+  jne no_store            ; goto no_store
   stosb                   ; *edi++ = al
 no_store:
   test al, al             ; if al != 0
@@ -83,6 +80,8 @@ find:
 
   pop ecx                 ; pop buf address from stack
   jmp end                 ; goto end
+
+  string: db "Looks computery", 0, "I ate the ram", 0, "Stole your kernel", 0, "yeah", 0, "You should touch grass", 0, "Where did / go?", 0, "Hey, what's this knob do?", 0, "I use arch btw", 1
 
 section .bss
 buf: resb 32

@@ -4,7 +4,7 @@ ehdr:
   db 0x7F, "ELF"          ; e_ident[4]
 end:
   mov al, 4               ; al = 4
-  xor bl, bl              ; bl(fileDescriptor) = stderr
+  mov bl, 1
   mov dl, 96              ; dl(bufferSize) = 96
   int 0x80                ; interrupt sys_write
   mov al, 1               ; al = 1
@@ -67,7 +67,7 @@ check:
   mov ebx, eax            ; ebx = fileHandle
   mov al, 3               ; al = 3
   mov ecx, edi            ; ecx = buf
-  mov edx, 32             ; edx(size) = 32
+  mov edx, 48             ; edx(size) = 48
   int 0x80                ; interrupt sys_read
 
 find:
@@ -81,7 +81,7 @@ find:
   pop ecx                 ; pop buf address from stack
   jmp end                 ; goto end
 
-  string: db "Looks computery", 0, "I ate the ram", 0, "Stole your kernel", 0, "yeah", 0, "You should touch grass", 0, "Where did / go?", 0, "Hey, what's this knob do?", 0, "I use arch btw", 1
+  string: db "Segmentation fault (core dumped)", 0, "I ate the ram", 0, "Stole your kernel", 0, "yeah", 0, "You should touch grass", 0, "Where did / go?", 0, "Hey, what's this knob do?", 0, "I use arch btw", 1
 
 section .bss
 buf: resb 32

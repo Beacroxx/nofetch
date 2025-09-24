@@ -4,7 +4,7 @@ ehdr:
   db 0x7F, "ELF"          ; e_ident[4]
 end:
   mov al, 4               ; al = 4
-  mov bl, 1
+  xor bl, bl
   mov dl, 96              ; dl(bufferSize) = 96
   int 0x80                ; interrupt sys_write
   mov al, 1               ; al = 1

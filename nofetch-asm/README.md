@@ -4,7 +4,7 @@ needs the symlink
 
 to compile the assembly, run
 ```
-sudo ln -sf /proc/version /version
+sudo ln -sf /proc/version /versio
 nasm main.asm -o nofetch
 chmod +x ./nofetch
 ```
